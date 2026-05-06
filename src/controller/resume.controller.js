@@ -3,7 +3,7 @@ import { summarizeResume } from "../services/gemini.service.js";
 import { uploadBufferToCloudinary } from "../config/cloudinary.js";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const { PDFParse } = require("pdf-parse");
+const pdfParse = require("pdf-parse");
 
 // Public — anyone can upload a resume (no auth)
 const uploadResume = async (req, res) => {
@@ -58,20 +58,9 @@ const processResumeSummary = async (resumeId, fileBuffer, targetRole, fileName =
         // Mark as processing
         await Resume.findByIdAndUpdate(resumeId, { status: "processing" });
 
-        // Extract text from PDF buffer directly
-        const parser = new PDFParse({ data: fileBuffer });
-        const result = await parser.getText();
-        // getText returns an object with pages array containing text
-        let extractedText = "";
-        if (typeof result === "string") {
-            extractedText = result;
-        } else if (result && result.pages) {
-            extractedText = result.pages.map(p => p.text || p).join("\n");
-        } else if (result && result.text) {
-            extractedText = result.text;
-        } else {
-            extractedText = String(result);
-        }
+        // Extract text from PDF buffer using pdf-parse v1
+        const pdfData = await pdfParse(fileBuffer);
+        let extractedText = pdfData.text || "";
 
         if (!extractedText || extractedText.trim().length < 50) {
             await Resume.findByIdAndUpdate(resumeId, {
