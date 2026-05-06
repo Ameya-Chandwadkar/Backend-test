@@ -1,20 +1,23 @@
 import multer from 'multer';
 import fs from 'fs';
+import path from 'path';
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // If req.user is populated (by auth middleware), save to users folder
-        const dir = req.user ? './public/uploads/users' : './public/uploads/guest';
-        // Create directory if it doesn't exist
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: function (req, file, cb) {
-        // Create a unique filename
-        cb(null, Date.now() + '-' + file.originalname);
+// Use memoryStorage for Vercel deployment (no disk access)
+const storage = multer.memoryStorage();
+
+// Only accept PDF files
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+        cb(null, true);
+    } else {
+        cb(new Error('Only PDF files are allowed'), false);
+    }
+};
+
+export const upload = multer({
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
     }
 });
-
-export const upload = multer({ storage });

@@ -29,9 +29,15 @@ const userSchema = new Schema(
             trim: true
         },
 
-        avatar: {
-            type: String, // Store URL/path of the avatar
+        company: {
+            type: String,
+            trim: true,
             default: ""
+        },
+
+        hiringRoles: {
+            type: [String],
+            default: []
         }
         
     },

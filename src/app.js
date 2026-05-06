@@ -13,14 +13,16 @@ app.use(express.json());
 app.use('/public', express.static('public'));
 
 // routes import
-import userRouter from './routes/user.route.js';
-import postRouter from './routes/post.route.js';
+import hirerRouter from './routes/user.route.js';
+import resumeRouter from './routes/resume.route.js';
 
 
 // routes declaration
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/posts", postRouter)
+app.use("/api/v1/hirers", hirerRouter);
+app.use("/api/v1/resumes", resumeRouter);
 
-// example route: http://localhost:4000/api/v1/users/register
+// example routes:
+// POST http://localhost:4000/api/v1/hirers/register
+// POST http://localhost:4000/api/v1/resumes/upload
 
 export default app;
